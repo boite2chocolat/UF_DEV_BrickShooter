@@ -14,7 +14,7 @@ BLUE_SHIP = pygame.image.load(os.path.join("assets","pixel_ship_blue_small.png")
 GREEN_SHIP = pygame.image.load(os.path.join("assets","pixel_ship_orange_small.png"))
 
 # Vaisseau du joueur 
-YELLOW_SHIP = pygame.image.load(os.path.join("assets","pixel_ship_bogos.png"))
+YELLOW_SHIP = pygame.image.load(os.path.join("assets","faucon.png"))
 
 # Import des balles
 
@@ -35,7 +35,7 @@ class Laser:
         self.mask = pygame.mask.from_surface(self.img)
 
     def draw(self, window):
-        window.blit(self.img, (self.x, self.y))
+        window.blit(self.img, (self.x +60 , self.y -35)) # laser fix 
 
     def move(self, vel):
         self.y += vel
@@ -48,7 +48,7 @@ class Laser:
 
 
 class Ship:
-    COOLDOWN = 10
+    COOLDOWN = 20
 
     def __init__(self, x, y, health=100):
         self.x = x
@@ -132,8 +132,8 @@ class Enemy(Ship):
 
 
 def collide(obj1, obj2):
-	offset_x = obj2.x - obj1.x
-	offset_y = obj2.y - obj1.y
+	offset_x = obj2.x - obj1.x - 60 # hitbox fix 
+	offset_y = obj2.y - obj1.y + 35
 	return obj1.mask.overlap(obj2.mask, (offset_x,offset_y)) != None 
 
 
@@ -142,15 +142,15 @@ def main():
 	run = True 
 	FPS = 60   # image par seconde
 	level = 0
-	lives = 5
+	lives = 4
 	main_font = pygame.font.SysFont("comicsans", 50)
 	lost_font = pygame.font.SysFont("comicsans", 60)
 
 	enemies = []
 	wave_length = 5 
-	enemy_vel = 1
-	player_vel = 4
-	laser_vel = 7
+	enemy_vel = 2
+	player_vel = 2
+	laser_vel = 6
 
 	player = Player(300, 650)
 
@@ -195,6 +195,8 @@ def main():
 		if len(enemies) == 0:
 			level += 1 
 			wave_length += 5
+			player_vel +=1
+			lives +=1
 
 			for i in range(wave_length):
 				enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1500, -100), random.choice(["red","blue","green"]))
@@ -214,7 +216,7 @@ def main():
 			player.y -= player_vel
 		if keys[pygame.K_DOWN] and player.y + player_vel + player.get_height() < HEIGHT: # Deplacement vers le bas 
 			player.y += player_vel
-		if keys[pygame.K_KP0]:
+		if keys[pygame.K_SPACE]:
 			player.shoot()
 
 		for enemy in enemies[:]:
