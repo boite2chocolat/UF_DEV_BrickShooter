@@ -1,2 +1,10 @@
-"# UF_DEV_BrickShooter" 
-"# UF_DEV_BrickShooter" 
+# UF DEV BrickShooter
+Jeu 2D 
+SEDAROS Victor-Emmanuel - LACOMBE Samy
+
+## Lunch
+```
+cd UF_DEV_BrickShooter
+python mai.py
+```
+
