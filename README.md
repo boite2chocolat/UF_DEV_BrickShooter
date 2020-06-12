@@ -1,6 +1,6 @@
 # UF DEV BrickShooter
-Jeu 2D 
-SEDAROS Victor-Emmanuel - LACOMBE Samy
+- Jeu 2D 
+- SEDAROS Victor-Emmanuel - LACOMBE Samy
 
 ## Lunch
 ```
