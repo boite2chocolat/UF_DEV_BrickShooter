@@ -5,6 +5,6 @@ SEDAROS Victor-Emmanuel - LACOMBE Samy
 ## Lunch
 ```
 cd UF_DEV_BrickShooter
-python mai.py
+python main.py
 ```
 
