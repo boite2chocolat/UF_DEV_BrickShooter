@@ -11,10 +11,10 @@ pygame.display.set_caption("Brickshooter")
 # Import des vaisseau
 RED_SHIP = pygame.image.load(os.path.join("assets","pixel_ship_red_small.png"))
 BLUE_SHIP = pygame.image.load(os.path.join("assets","pixel_ship_blue_small.png"))
-GREEN_SHIP = pygame.image.load(os.path.join("assets","pixel_ship_green_small.png"))
+GREEN_SHIP = pygame.image.load(os.path.join("assets","pixel_ship_orange_small.png"))
 
 # Vaisseau du joueur 
-YELLOW_SHIP = pygame.image.load(os.path.join("assets","pixel_ship_yellow.png"))
+YELLOW_SHIP = pygame.image.load(os.path.join("assets","pixel_ship_bogos.png"))
 
 # Import des balles
 
@@ -24,7 +24,7 @@ GREEN_LASER= pygame.image.load(os.path.join("assets","pixel_laser_green.png"))
 YELLOW_LASER = pygame.image.load(os.path.join("assets","pixel_laser_yellow.png"))
 
 # Map
-MAP = pygame.transform.scale(pygame.image.load(os.path.join("assets","background-black.png")), (WIDTH, HEIGHT))
+MAP = pygame.transform.scale(pygame.image.load(os.path.join("assets","background.png")), (WIDTH, HEIGHT))
 
 
 class Ship:
