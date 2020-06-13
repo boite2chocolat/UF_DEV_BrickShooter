@@ -21,7 +21,7 @@ YELLOW_SHIP = pygame.image.load(os.path.join("assets","faucon.png"))
 RED_LASER = pygame.image.load(os.path.join("assets","pixel_laser_red.png"))
 BLUE_LASER = pygame.image.load(os.path.join("assets","pixel_laser_blue.png"))
 GREEN_LASER= pygame.image.load(os.path.join("assets","pixel_laser_green.png"))
-YELLOW_LASER = pygame.image.load(os.path.join("assets","pixel_missile_small.png"))
+YELLOW_LASER = pygame.image.load(os.path.join("assets","finallaser1.png"))
 
 # Map
 MAP = pygame.transform.scale(pygame.image.load(os.path.join("assets","background.png")), (WIDTH, HEIGHT))
@@ -35,7 +35,7 @@ class Laser:
         self.mask = pygame.mask.from_surface(self.img)
 
     def draw(self, window):
-        window.blit(self.img, (self.x +60 , self.y -35)) # laser fix 
+        window.blit(self.img, (self.x +  13 , self.y -55)) # laser fix 
 
     def move(self, vel):
         self.y += vel
@@ -48,8 +48,7 @@ class Laser:
 
 
 class Ship:
-    COOLDOWN = 20
-
+    COOLDOWN = 15
     def __init__(self, x, y, health=100):
         self.x = x
         self.y = y
@@ -132,8 +131,8 @@ class Enemy(Ship):
 
 
 def collide(obj1, obj2):
-	offset_x = obj2.x - obj1.x - 60 # hitbox fix 
-	offset_y = obj2.y - obj1.y + 35
+	offset_x = obj2.x - obj1.x - 13 # hitbox fix 
+	offset_y = obj2.y - obj1.y + 55
 	return obj1.mask.overlap(obj2.mask, (offset_x,offset_y)) != None 
 
 
@@ -143,16 +142,19 @@ def main():
 	FPS = 60   # image par seconde
 	level = 0
 	lives = 4
+	Score = 0 
 	main_font = pygame.font.SysFont("comicsans", 50)
+	score_font = pygame.font.SysFont("comicsans", 30)
+	enemy_left_font = pygame.font.SysFont("comicsans", 30)
 	lost_font = pygame.font.SysFont("comicsans", 60)
-
 	enemies = []
-	wave_length = 5 
+	wave_length = 1 
 	enemy_vel = 2
-	player_vel = 2
+	player_vel = 4
 	laser_vel = 6
-
-	player = Player(300, 650)
+	lenght = 0
+	counter = 0
+	player = Player( 300, 600)
 
 	clock  = pygame.time.Clock()
 
@@ -164,8 +166,12 @@ def main():
 		#Draw text
 		lives_label = main_font.render(f"Vie: {lives}",1, (255,255,255))
 		level_label = main_font.render(f"Niveau: {level}", 1,(255,255,255))
+		enemy_left_label = score_font.render(f"Enemy left: " + str(lenght), 1,(255,255,255))
+		Score_label = score_font.render(f"Score: {Score}", 1,(255,255,255))
 
 		WIN.blit(lives_label, (10,10))
+		WIN.blit(Score_label, (10,100))
+		WIN.blit(enemy_left_label, (WIDTH - level_label.get_width() - 10, 100))
 		WIN.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
 
 		for enemy in enemies:
@@ -180,6 +186,9 @@ def main():
 		pygame.display.update()
 
 	while run:
+
+		lenght = len(enemies)
+
 		clock.tick(FPS)
 		redraw_window()
 		if lives <= 0 or player.health <= 0:
@@ -195,8 +204,8 @@ def main():
 		if len(enemies) == 0:
 			level += 1 
 			wave_length += 5
-			player_vel +=1
 			lives +=1
+			Score += wave_length * 10 
 
 			for i in range(wave_length):
 				enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1500, -100), random.choice(["red","blue","green"]))
