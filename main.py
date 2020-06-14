@@ -3,6 +3,7 @@ import os
 import time
 import random
 pygame.font.init()
+pygame.mixer.init(44100, -16,2,2048)
 
 WIDTH, HEIGHT = 750,750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -26,6 +27,10 @@ YELLOW_LASER = pygame.image.load(os.path.join("assets","finallaser1.png"))
 # Map
 MAP = pygame.transform.scale(pygame.image.load(os.path.join("assets","background.png")), (WIDTH, HEIGHT))
 
+bulletSound = pygame.mixer.Sound('pew.wav')
+explosionSound = pygame.mixer.Sound('explosion.wav')
+Music = pygame.mixer.music.load('ssbb.mp3')
+pygame.mixer.music.play(-1)
 
 class Laser:
     def __init__(self, x, y, img):
@@ -82,6 +87,7 @@ class Ship:
     def shoot(self):
         if self.cool_down_counter == 0:
             laser = Laser(self.x, self.y, self.laser_img)
+            bulletSound.play()
             self.lasers.append(laser)
             self.cool_down_counter = 1
 
@@ -109,6 +115,7 @@ class Player(Ship):
 			else:
 				for obj in objs:
 					if laser.collision(obj):
+						explosionSound.play()
 						objs.remove(obj)
 						if laser in self.lasers:
 							self.lasers.remove(laser)
@@ -142,7 +149,7 @@ def main():
 	FPS = 60   # image par seconde
 	level = 0
 	lives = 4
-	Score = 0 
+	Score = -60
 	main_font = pygame.font.SysFont("comicsans", 50)
 	score_font = pygame.font.SysFont("comicsans", 30)
 	enemy_left_font = pygame.font.SysFont("comicsans", 30)
@@ -163,15 +170,15 @@ def main():
 
 	def redraw_window():
 		WIN.blit(MAP, (0,0))
-		#Draw text
+		#Draw text++
 		lives_label = main_font.render(f"Vie: {lives}",1, (255,255,255))
 		level_label = main_font.render(f"Niveau: {level}", 1,(255,255,255))
-		enemy_left_label = score_font.render(f"Enemy left: " + str(lenght), 1,(255,255,255))
+		enemy_left_label = score_font.render(f"Enemy restant: " + str(lenght), 1,(255,255,255))
 		Score_label = score_font.render(f"Score: {Score}", 1,(255,255,255))
 
 		WIN.blit(lives_label, (10,10))
 		WIN.blit(Score_label, (10,100))
-		WIN.blit(enemy_left_label, (WIDTH - level_label.get_width() - 10, 100))
+		WIN.blit(enemy_left_label, (WIDTH - level_label.get_width() - 25, 100))
 		WIN.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
 
 		for enemy in enemies:
@@ -200,6 +207,14 @@ def main():
 				run = False
 			else:
 				continue
+
+		if level == 5:
+			player_vel = 8 
+			laser_vel = 12
+		else:
+			player_vel = 4
+			laser_vel = 6
+
 
 		if len(enemies) == 0:
 			level += 1 
