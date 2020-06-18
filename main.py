@@ -1,9 +1,14 @@
+
 import pygame
 import os 
 import time
 import random
+import os
+from os import path
+
+
 pygame.font.init()
-pygame.mixer.init(44100, -16,2,2048)
+pygame.mixer.init(44100, -16,2,512)
 
 WIDTH, HEIGHT = 750,750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -19,18 +24,22 @@ YELLOW_SHIP = pygame.image.load(os.path.join("assets","faucon.png"))
 
 # Import des balles
 
-RED_LASER = pygame.image.load(os.path.join("assets","pixel_laser_red.png"))
-BLUE_LASER = pygame.image.load(os.path.join("assets","pixel_laser_blue.png"))
-GREEN_LASER= pygame.image.load(os.path.join("assets","pixel_laser_green.png"))
+RED_LASER = pygame.image.load(os.path.join("assets","redlaser.png"))
+BLUE_LASER = pygame.image.load(os.path.join("assets","redlaser.png"))
+GREEN_LASER= pygame.image.load(os.path.join("assets","redlaser.png"))
 YELLOW_LASER = pygame.image.load(os.path.join("assets","finallaser1.png"))
 
 # Map
 MAP = pygame.transform.scale(pygame.image.load(os.path.join("assets","background.png")), (WIDTH, HEIGHT))
 
-bulletSound = pygame.mixer.Sound('pew.wav')
-explosionSound = pygame.mixer.Sound('explosion.wav')
-Music = pygame.mixer.music.load('ssbb.mp3')
-pygame.mixer.music.play(-1)
+bulletSound = pygame.mixer.Sound(os.path.join("assets","pew.wav"))
+explosionSound = pygame.mixer.Sound(os.path.join("assets","explosion.wav"))
+Music = pygame.mixer.music.load(os.path.join("assets","ssbb.mp3"))
+
+#Save Files settings
+
+HS_FILE="highscore.txt"
+
 
 class Laser:
     def __init__(self, x, y, img):
@@ -120,6 +129,15 @@ class Player(Ship):
 						if laser in self.lasers:
 							self.lasers.remove(laser)
 
+	def draw(self, window):
+		super().draw(window)
+		self.Drawhealth(window)
+
+	def Drawhealth(self,window):
+		pygame.draw.rect(window, (255,0,0), (self.x, self.y + self.ship_img.get_height() +10, self.ship_img.get_width(), 10))
+		pygame.draw.rect(window, (0,255,0), (self.x, self.y + self.ship_img.get_height() +10, self.ship_img.get_width()* (self.health/self.max_health), 10))
+
+
 
 class Enemy(Ship):
 	COLOR_MAP = {
@@ -136,6 +154,16 @@ class Enemy(Ship):
 	def move(self, vel):
 		self.y += vel
 
+	def shoot(self):
+		if self.cool_down_counter == 0:
+			laser = Laser(self.x-25, self.y+60, self.laser_img)
+			self.lasers.append(laser)
+			self.cool_down_counter = 1
+
+	def score(self):
+		score += 10
+		
+
 
 def collide(obj1, obj2):
 	offset_x = obj2.x - obj1.x - 13 # hitbox fix 
@@ -145,15 +173,19 @@ def collide(obj1, obj2):
 
 
 def main():
-	run = True 
-	FPS = 60   # image par seconde
-	level = 0
-	lives = 4
-	Score = -60
+	pygame.mixer.music.play(1)
 	main_font = pygame.font.SysFont("comicsans", 50)
 	score_font = pygame.font.SysFont("comicsans", 30)
 	enemy_left_font = pygame.font.SysFont("comicsans", 30)
 	lost_font = pygame.font.SysFont("comicsans", 60)
+	bonus_font = pygame.font.SysFont("comicsans", 60)
+
+
+	run = True 
+	FPS = 60   # image par seconde
+	level = 0
+	lives = 4
+	Score = - 60
 	enemies = []
 	wave_length = 1 
 	enemy_vel = 2
@@ -162,20 +194,23 @@ def main():
 	lenght = 0
 	counter = 0
 	player = Player( 300, 600)
-
+	Bonus = False
 	clock  = pygame.time.Clock()
-
+	green = 0, 255, 0
 	lost = False
 	lost_count = 0
-
+	__file__ = 'modulename.py'
 	def redraw_window():
+		
 		WIN.blit(MAP, (0,0))
 		#Draw text++
 		lives_label = main_font.render(f"Vie: {lives}",1, (255,255,255))
 		level_label = main_font.render(f"Niveau: {level}", 1,(255,255,255))
 		enemy_left_label = score_font.render(f"Enemy restant: " + str(lenght), 1,(255,255,255))
 		Score_label = score_font.render(f"Score: {Score}", 1,(255,255,255))
-
+		highscore_label = score_font.render(f"Highscore: {highscore}",1,(255,255,255))
+		
+		WIN.blit(highscore_label, (10,200))
 		WIN.blit(lives_label, (10,10))
 		WIN.blit(Score_label, (10,100))
 		WIN.blit(enemy_left_label, (WIDTH - level_label.get_width() - 25, 100))
@@ -188,14 +223,41 @@ def main():
 
 		if lost:
 			lost_label = lost_font.render("Game Over !",1, (255,255,255))
-			WIN.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))
+			WIN.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))	
 
 		pygame.display.update()
 
+
+	def pause():
+		paused = True
+
+		while paused:
+			for event in pygame.event.get():
+					WIN.fill(green)
+					paused_label = score_font.render(f"Press C to continue or esc to quit.",1,(255,255,255))
+					WIN.blit(paused_label, (WIDTH/2 - paused_label.get_width()/2, 350))	
+					pygame.display.update()
+					clock.tick(5)
+					keys = pygame.key.get_pressed()
+					if keys[pygame.K_c]:
+						paused = False
+					if keys[pygame.K_ESCAPE]:
+						quit()
+					
+
+		
+		pygame.display.update()
+		clock.tick(5)
+		
+
 	while run:
+		dir = path.dirname(__file__)
+		with open(path.join(dir,HS_FILE),'r') as f:
+			highscore = int(f.read())	
+
+
 
 		lenght = len(enemies)
-
 		clock.tick(FPS)
 		redraw_window()
 		if lives <= 0 or player.health <= 0:
@@ -208,19 +270,19 @@ def main():
 			else:
 				continue
 
-		if level == 5:
-			player_vel = 8 
-			laser_vel = 12
-		else:
-			player_vel = 4
-			laser_vel = 6
-
-
 		if len(enemies) == 0:
+			player.health+=10
 			level += 1 
 			wave_length += 5
 			lives +=1
 			Score += wave_length * 10 
+			n = random.randint(1,4)
+			if n == 1:
+				player_vel = 8
+				laser_vel = 12
+			else:
+				player_vel = 4
+				laser_vel = 6
 
 			for i in range(wave_length):
 				enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1500, -100), random.choice(["red","blue","green"]))
@@ -229,7 +291,8 @@ def main():
 
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
-				run = False
+				quit()
+
 
 		keys = pygame.key.get_pressed()
 		if keys[pygame.K_LEFT]and player.x - player_vel > 0: # Deplacement à gauche  
@@ -242,14 +305,64 @@ def main():
 			player.y += player_vel
 		if keys[pygame.K_SPACE]:
 			player.shoot()
+			bulletSound.play()
+		if keys[pygame.K_p]:
+			pause()
+		if keys[pygame.K_c]:
+			paused = False
+		if keys[pygame.K_ESCAPE]:
+			quit()
+		if keys[pygame.K_TAB]:
+			main_menu()
+
+
+
 
 		for enemy in enemies[:]:
 			enemy.move(enemy_vel)
 			enemy.move_lasers(laser_vel, player)
-			if enemy.y + enemy.get_height() > HEIGHT:
+
+			if random.randrange(0, 2*90) ==1:
+				enemy.shoot()
+
+			if collide(enemy, player):
+				player.health ==100
+				enemies.remove(enemy)
+
+			elif enemy.y + enemy.get_height() > HEIGHT:
 				lives -= 1
 				enemies.remove(enemy)
 
+
+		if Score > highscore:
+				highscore = Score
+				with open(path.join(dir, HS_FILE), 'w') as f:
+					f.write(str(Score))
+
+
+
 		player.move_lasers(-laser_vel, enemies)
 
-main()
+
+
+
+def main_menu():
+	title_font = pygame.font.SysFont("comicsans",40)
+	rules_font = pygame.font.SysFont("comicsans",30)
+	run = True
+	while run:
+		WIN.blit(MAP,(0,0))
+		title_label = title_font.render("Click gauche pour jouer", 1, (255,255,255))
+		WIN.blit(title_label, (WIDTH/2- title_label.get_width()/2,350))
+		rules_label = rules_font.render("Press P to pause, C to continue, TAB for main menu or esc to leave the game", 1, (255,255,255))
+		WIN.blit(rules_label, (WIDTH/2- rules_label.get_width()/2,450))
+		pygame.display.update()
+
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				run = False
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				main()
+	pygame.quit() 
+
+main_menu()
