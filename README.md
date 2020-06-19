@@ -6,9 +6,9 @@
 ```
 cd Brickshooter
 main.exe
-
-OR
-
+```
+####OR
+```
 cd UF_DEV_BrickShooter
 python main.py
 ```
