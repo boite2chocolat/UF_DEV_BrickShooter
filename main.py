@@ -187,7 +187,7 @@ def main():
 	lives = 4
 	Score = - 60
 	enemies = []
-	wave_length = 1 
+	wave_length = 1
 	enemy_vel = 2
 	player_vel = 4
 	laser_vel = 6
@@ -206,14 +206,14 @@ def main():
 		#Draw text++
 		lives_label = main_font.render(f"Vie: {lives}",1, (255,255,255))
 		level_label = main_font.render(f"Niveau: {level}", 1,(255,255,255))
-		enemy_left_label = score_font.render(f"Enemy restant: " + str(lenght), 1,(255,255,255))
+		enemy_left_label = score_font.render(f"Ennemis restant: " + str(lenght), 1,(255,255,255))
 		Score_label = score_font.render(f"Score: {Score}", 1,(255,255,255))
-		highscore_label = score_font.render(f"Highscore: {highscore}",1,(255,255,255))
+		highscore_label = score_font.render(f"Meilleur Score: {highscore}",1,(255,255,255))
 		
-		WIN.blit(highscore_label, (10,200))
+		WIN.blit(highscore_label, (10,150))
 		WIN.blit(lives_label, (10,10))
 		WIN.blit(Score_label, (10,100))
-		WIN.blit(enemy_left_label, (WIDTH - level_label.get_width() - 25, 100))
+		WIN.blit(enemy_left_label, (WIDTH - level_label.get_width() - 55, 100))
 		WIN.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
 
 		for enemy in enemies:
@@ -233,17 +233,18 @@ def main():
 
 		while paused:
 			for event in pygame.event.get():
-					WIN.fill(green)
-					paused_label = score_font.render(f"Press C to continue or esc to quit.",1,(255,255,255))
+					WIN.blit(MAP, (0,0))
+					paused_label = score_font.render(f"Appuiyez sur P pour continuer ou echap pour quitter.",1,(255,255,255))
 					WIN.blit(paused_label, (WIDTH/2 - paused_label.get_width()/2, 350))	
 					pygame.display.update()
 					clock.tick(5)
 					keys = pygame.key.get_pressed()
-					if keys[pygame.K_c]:
+					if keys[pygame.K_p]:
 						paused = False
 					if keys[pygame.K_ESCAPE]:
 						quit()
-					
+					if event.type == pygame.QUIT:
+						quit()
 
 		
 		pygame.display.update()
@@ -271,7 +272,7 @@ def main():
 				continue
 
 		if len(enemies) == 0:
-			player.health+=10
+			player.health = 100
 			level += 1 
 			wave_length += 5
 			lives +=1
@@ -308,8 +309,6 @@ def main():
 			bulletSound.play()
 		if keys[pygame.K_p]:
 			pause()
-		if keys[pygame.K_c]:
-			paused = False
 		if keys[pygame.K_ESCAPE]:
 			quit()
 		if keys[pygame.K_TAB]:
@@ -353,9 +352,15 @@ def main_menu():
 	while run:
 		WIN.blit(MAP,(0,0))
 		title_label = title_font.render("Click gauche pour jouer", 1, (255,255,255))
-		WIN.blit(title_label, (WIDTH/2- title_label.get_width()/2,350))
-		rules_label = rules_font.render("Press P to pause, C to continue, TAB for main menu or esc to leave the game", 1, (255,255,255))
+		WIN.blit(title_label, (WIDTH/2- title_label.get_width()/2,150))
+		rules_label = rules_font.render("Appuiyez sur P pour pause/play", 1, (255,255,255))
+		WIN.blit(rules_label, (WIDTH/2- rules_label.get_width()/2,350))
+		rules_label = rules_font.render("Tab pour le menu ou echap pour quitter le jeu", 1, (255,255,255))
+		WIN.blit(rules_label, (WIDTH/2- rules_label.get_width()/2,400))
+		rules_label = rules_font.render("Fleches pour se déplacer, espace pour tirer", 1, (255,255,255))
 		WIN.blit(rules_label, (WIDTH/2- rules_label.get_width()/2,450))
+		credit_label = rules_font.render("Created by Samy L & Victor S", 1, (255,255,255))
+		WIN.blit(credit_label, (WIDTH/2- credit_label.get_width()/2,650))
 		pygame.display.update()
 
 		for event in pygame.event.get():
